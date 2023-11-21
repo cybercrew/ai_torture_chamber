@@ -1,9 +1,12 @@
 import cv2
+import imutils
+import serial
+
 
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
-video_capture = cv2.VideoCapture("./samples/sample.mp4")
+video_capture = cv2.VideoCapture(0)
 def detect_bounding_box(vid):
     gray_image = cv2.cvtColor(vid, cv2.COLOR_BGR2GRAY)
     faces = face_classifier.detectMultiScale(gray_image, 1.1, 5, minSize=(40, 40))
@@ -13,23 +16,27 @@ def detect_bounding_box(vid):
 while True:
 
     result, video_frame = video_capture.read()
+    video_frame = imutils.resize(video_frame, width=800)
     if result is False:
         break  
 
     faces = detect_bounding_box(
         video_frame
-    )  
+    ) 
 
     cv2.imshow(
-        "My Face Detection Project", video_frame
+        "Tracking", video_frame
     ) 
     try:
-        coords = str(faces[0]).replace("[", "").replace("]", "").split(" ")
-
+        l = str(faces).replace("[", "").replace("]", "").split(" ")
+        if(str(faces) != "()"):
+            if "" in l:
+                l.remove("")
+            print(f"X{l[0]}")
+            print(f"Y{l[1]}")
     except:
         pass
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
-    print(coords[0] + coords[1])
 video_capture.release()
 cv2.destroyAllWindows()
