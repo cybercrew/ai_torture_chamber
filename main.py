@@ -1,8 +1,16 @@
 import cv2
 import imutils
-import serial
-
-
+#import serial
+import math
+import time
+import pyautogui as pag
+from playsound import playsound 
+#arduino = serial.Serial(port='COM8', baudrate=9600, timeout=.1) 
+prevxco = 0
+prevyco = 0
+dist = 0
+pag.moveTo(1920,720,0.01)
+pag.mouseDown()
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
@@ -22,8 +30,7 @@ while True:
 
     faces = detect_bounding_box(
         video_frame
-    ) 
-
+    )
     cv2.imshow(
         "Tracking", video_frame
     ) 
@@ -32,8 +39,24 @@ while True:
         if(str(faces) != "()"):
             if "" in l:
                 l.remove("")
-            print(f"X{l[0]}")
-            print(f"Y{l[1]}")
+            x = (f"X{l[0]}")
+            y = (f"Y{l[1]}")
+            xco = int(l[0])-300
+            yco = int(l[1])-200
+            
+            pag.moveTo((-xco)/3+1920,yco/3+720,0.1)
+            if(prevxco!=0):
+                dist = math.sqrt((xco-prevxco)**2+(yco-prevyco)**2)
+            print(dist)
+            if dist>60:
+                #arduino.write(bytes('a','utf-8'))
+                playsound('shoot.mp3')
+            #arduino.write(bytes(x, 'utf-8'))
+            #arduino.write(bytes(y, 'utf-8'))
+            print(xco,yco)
+            time.sleep(0.07)
+            prevxco = xco
+            prevyco = yco
     except:
         pass
     if cv2.waitKey(1) & 0xFF == ord("q"):
